@@ -5,43 +5,52 @@
 	<xacro:property name="wradius" value=".15"/>
 	<xacro:property name="wthick" value=".1"/>
 	<link name="base_link">
-			<visual>
-					<geometry>
-							<box size="${len} ${width} .22"/>
-					</geometry>
-			</visual>
-			<collision>
-					<geometry>
-							<box size="${len} ${width} .22"/>
-					</geometry>
-			</collision>
+		<visual>
+			<geometry>
+				<box size="${len} ${width} .22"/>
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${len} ${width} .22"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<!-- Center of mass -->
+			<mass value="16.523"/>
+			 <!-- Moments of inertia: ( chassis without wheels ) -->
+			 <inertia
+			 	ixx="0.3136" ixy="-0.0008" ixz="0.0164"
+			 	iyy="0.3922" iyz="-0.0009"
+			 	izz="0.4485"/>
+		</inertial>
 	</link>
 
-  <link name="base_footprint">
-    <visual>
-      <geometry>
-        <box size="0.001 0.001 0.001"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <box size="0.001 0.001 0.001"/>
-      </geometry>
-    </collision>
-  </link>
+	<link name="base_footprint">
+		<visual>
+	  		<geometry>
+				<box size="0.001 0.001 0.001"/>
+	  		</geometry>
+		</visual>
+		<collision>
+	  		<origin rpy="0 0 0" xyz="0 0 0"/>
+	  		<geometry>
+				<box size="0.001 0.001 0.001"/>
+	  		</geometry>
+		</collision>
+	</link>
 
-  <link name="top_cover">
-			<visual>
-					<geometry>
-							<box size="${len} ${width} .25"/>
-					</geometry>
-			</visual>
-			<collision>
-					<geometry>
-							<box size="${len} ${width} .25"/>
-					</geometry>
-			</collision>
+	<link name="top_cover">
+		<visual>
+			<geometry>
+				<box size="${len} ${width} .25"/>
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${len} ${width} .25"/>
+			</geometry>
+		</collision>
 	</link>
 
 	<joint name="base_to_top_cover" type="fixed">
@@ -50,15 +59,15 @@
 		<origin xyz="0 0 .1"/>
 	</joint>
 
-  <joint name="base_footprint_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0.150"/>
-    <parent link="base_footprint"/>
-    <child link="base_link"/>
-  </joint>
+	<joint name="base_footprint_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0.150"/>
+		<parent link="base_footprint"/>
+		<child link="base_link"/>
+	</joint>
 
 	<xacro:macro name="wheel" params="prefix fb lr">
 		<!-- note front => fb = 1, left => lr = 1 -->
-		<link name="${prefix}_wheel">
+		<link name="${prefix}_wheel_link">
 			<visual>
 				<geometry>
 					<cylinder length="${wthick}" radius="${wradius}"/>
@@ -72,29 +81,42 @@
 					<cylinder length="${wthick}" radius="${wradius}"/>
 				</geometry>
 			</collision>
+			<inertial>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<mass value="0.477"/>
+				<inertia
+					ixx="0.0013" ixy="0" ixz="0"
+					iyy="0.0024" iyz="0"
+					izz="0.0013"/>
+			</inertial>
 		</link>
 
-		<joint name="base_to_${prefix}_wheel" type="continuous">
+		<gazebo reference="${prefix}_wheel_link">
+			<material>Gazebo/DarkGrey</material>
+		</gazebo>
+
+		<joint name="${prefix}_wheel" type="continuous">
 			<parent link="base_link"/>
-			<child link="${prefix}_wheel"/>
+			<child link="${prefix}_wheel_link"/>
 			<axis xyz="0 0 -1"/>
 			<origin rpy="1.57075 0 0" xyz="${fb*.19} ${lr*.25} -.05" />
-      <limit effort="5.0" velocity="5.0"/>
-      <joint_properties damping="2.0" friction="{steer_joint_friction}"/>
+			<joint_properties damping="2.0" friction="{steer_joint_friction}"/>
 		</joint>
-    <transmission name="${prefix}_joint_wheel_steer_trans">
-      <type>transmission_interface/SimpleTransmission</type>
-      <joint name="$base_to_${prefix}_wheel"/>
-      <actuator name="${prefix}_joint_wheel_steer_motor">
-        <hardwareInterface>EffortJointInterface</hardwareInterface>
-        <mechanicalReduction>100.0</mechanicalReduction>
-        <motorTorqueConstant>1</motorTorqueConstant>
-      </actuator>
-    </transmission>
+		<transmission name="${prefix}_joint_wheel_steer_trans">
+			<type>transmission_interface/SimpleTransmission</type>
+			<joint name="${prefix}_wheel">
+				<hardwareInterface>VelocityJointInterface</hardwareInterface>
+			</joint>
+			<actuator name="${prefix}_joint_wheel_steer_motor">
+				<mechanicalReduction>1</mechanicalReduction>
+			</actuator>
+		</transmission>
 	</xacro:macro>
 
 	<xacro:wheel prefix="front_left" fb="1" lr="1" />
 	<xacro:wheel prefix="front_right" fb="1" lr="-1" />
 	<xacro:wheel prefix="rear_left" fb="-1" lr="1" />
 	<xacro:wheel prefix="rear_right" fb="-1" lr="-1" />
+	<!-- Bring in simulation data for Gazebo. -->
+	<xacro:include filename="atrv.gazebo" />
 </robot>
