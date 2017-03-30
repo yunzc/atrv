@@ -1,0 +1,12 @@
+<launch>
+	<!-- Run the map server -->
+	<arg name="map_file" default="$(find atrv_navigation)/maps/atrv_scene1.yaml"/>
+	<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
+	<!--- Run Move Base -->
+	<include file="$(find atrv_navigation)/launch/move_base.launch" />
+	<!-- load transforms  -->
+	<node name='atrv_tf_broadcaster' pkg="atrv_navigation" type="tf_teleop_broadcast.py" respawn="false" output="screen" />
+
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find atrv_navigation)/rviz/navigation.rviz" />
+
+</launch>

@@ -26,20 +26,6 @@
 		</inertial>
 	</link>
 
-	<link name="base_footprint">
-		<visual>
-	  		<geometry>
-				<box size="0.001 0.001 0.001"/>
-	  		</geometry>
-		</visual>
-		<collision>
-	  		<origin rpy="0 0 0" xyz="0 0 0"/>
-	  		<geometry>
-				<box size="0.001 0.001 0.001"/>
-	  		</geometry>
-		</collision>
-	</link>
-
 	<link name="top_cover">
 		<visual>
 			<geometry>
@@ -57,12 +43,6 @@
 		<parent link="base_link"/>
 		<child link="top_cover"/>
 		<origin xyz="0 0 .1"/>
-	</joint>
-
-	<joint name="base_footprint_joint" type="fixed">
-		<origin rpy="0 0 0" xyz="0 0 0.150"/>
-		<parent link="base_footprint"/>
-		<child link="base_link"/>
 	</joint>
 
 	<xacro:macro name="wheel" params="prefix fb lr">
