@@ -13,7 +13,7 @@ def getModelPose(link_name='base_link', relative_entity_name='world'):
     except rospy.ServiceException, e:
         print "Service call failed: %s"%e
 
-def handleModelPose(msg, tfBroadcaster, tfListener, linkname="base_link", framename="map"):
+def handleModelPose(msg, tfBroadcaster, tfListener, linkname="base_link", framename="vicon/ATRV_1/ATRV_1"):
     position = msg.link_state.pose.position
     ori = msg.link_state.pose.orientation
     # link is child frame is parent
