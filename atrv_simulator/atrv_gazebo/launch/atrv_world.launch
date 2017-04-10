@@ -13,7 +13,7 @@
     <arg name="world_name" value="$(arg world_name)" />
   </include>
 
-  <!-- Load Jackal's description, controllers, and teleop nodes. -->
+  <!-- Load atrv description, controllers, and teleop nodes. -->
   <include file="$(find atrv_descriptions)/launch/description.launch">
   </include>
   <include file="$(find atrv_control)/launch/control.launch" />
