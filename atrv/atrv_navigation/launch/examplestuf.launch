@@ -1,0 +1,93 @@
+<launch>
+  <!-- WAM pick and place demo, in hardware!
+    Prerequisites:
+       - WAM has been launched (with WAM joint controller)
+       - Vicon system is on, calibrated, and configured with appropriate markers
+  -->
+  <!-- An argument to potentially launch a second, optional, and more colorful instance of rviz -->
+  <arg name="launch_secondary_rviz" value="true"/>
+
+
+
+  <!--  ********************************************************************
+          Vicon system, Vicon calibration, and static transform publishers
+        ******************************************************************** -->
+    <!-- Launch vicon_bridge, which gets the live data from the Vicon system -->
+  <include file="$(find vicon_bridge)/launch/vicon.launch"/>
+  <!-- Include some static transform publishers -->
+  <!-- Connect WAM arm model to Vicon origin frame. Calibrated via mers_vicon_calibrate package, see the documentation there. -->
+  <node pkg="tf" type="static_transform_publisher" name="static_transform_pub_1" args="0.0622429636481 -0.00348673418185 0.284032551672 1.66220809382 0.00914097055415 0.0140628377526 vicon/wambase/wambase wam_link_base 20"/>
+  <!-- Add some dummy publishers for the cabinet / wam stand, to put them relative to the measured tabletop and WAM -->
+  <!-- This will allow the tf_to_collision_object node to add these objects which are not directly sensed by the Vicon -->
+  <node pkg="tf" type="static_transform_publisher" name="static_transform_pub_2" args="0.0 0.0 -0.300 0.0 0.0 0.0 vicon/tabletop/tabletop cabinet 20"/>
+  <node pkg="tf" type="static_transform_publisher" name="static_transform_pub_3" args="0.0 0.0 -0.500 0.0 0.0 0.0 wam_link_base wamstand 20"/>
+
+
+
+  <!--  ********************************************************************
+          tf_to_collision_objects
+
+          Takes tf frames (output by vicon bridge) and publishes as MoveIt collision
+          objects (and also as colorful visualization markers)
+        ******************************************************************** -->
+    <!-- First load the collision objects to the ROS param server -->
+    <rosparam command="delete" param="tf_to_collision_objects/"/>
+    <rosparam command="load" param="tf_to_collision_objects/yellowblock" file="$(find demo_wam_pnp)/data/collision_objects/yellowblock.yaml" />
+    <rosparam command="load" param="tf_to_collision_objects/redblock" file="$(find demo_wam_pnp)/data/collision_objects/redblock.yaml" />
+    <rosparam command="load" param="tf_to_collision_objects/bluearch" file="$(find demo_wam_pnp)/data/collision_objects/bluearch.yaml" />
+  <rosparam command="load" param="tf_to_collision_objects/tabletop" file="$(find demo_wam_pnp)/data/collision_objects/tabletop.yaml" />
+  <rosparam command="load" param="tf_to_collision_objects/cabinet" file="$(find demo_wam_pnp)/data/collision_objects/cabinet.yaml" />
+  <rosparam command="load" param="tf_to_collision_objects/wamstand" file="$(find demo_wam_pnp)/data/collision_objects/wamstand.yaml" />
+    <!--          ...
+       Add all objects above -->
+    <!-- Now, launch the tf_to_collision_objects script -->
+    <node pkg="tf_to_collision_objects" type="tf_to_collision_objects.py" name="tf_to_collision_objects" output="screen"/>
+
+
+
+  <!--  ********************************************************************
+          MoveIt
+        ******************************************************************** -->
+    <!-- Launch MoveIt with the WAM. Note that we're using the hardware version here. -->
+    <include file="$(find wam_moveit_config)/launch/demo_hw.launch"></include>
+
+
+
+  <!--  ********************************************************************
+          MERS Pick and Place Engine
+        ******************************************************************** -->
+    <!-- Launch the MERS pick and place engine -->
+    <!-- First, launch configuration files -->
+    <rosparam command="delete" param="pick_and_place/"/>
+    <rosparam command="load" param="pick_and_place/grasps" file="$(find demo_wam_pnp)/data/grasps/grasps-yellowblock.yaml" />
+    <rosparam command="load" param="pick_and_place/grasps" file="$(find demo_wam_pnp)/data/grasps/grasps-redblock.yaml" />
+  <rosparam command="load" param="pick_and_place/grasps" file="$(find demo_wam_pnp)/data/grasps/grasps-bluearch.yaml" />
+    <!-- Add all grasps above -->
+    <!-- Next, launch all of the stacking configurations ... -->
+    <rosparam command="load" param="pick_and_place/stacking" file="$(find demo_wam_pnp)/data/stacking/stacking-yellowblock.yaml" />
+  <rosparam command="load" param="pick_and_place/stacking" file="$(find demo_wam_pnp)/data/stacking/stacking-redblock.yaml" />
+  <rosparam command="load" param="pick_and_place/stacking" file="$(find demo_wam_pnp)/data/stacking/stacking-bluearch.yaml" />
+    <!--          ...
+   All stacking configurations above -->
+    <!-- Finally, we can launch the pick and place server -->
+    <node pkg="mers_pick_and_place" type="pick_and_place_server.py" name="mers_pick_and_place_server" output="screen">
+    <param name="robot_name" value="wam"/>
+<param name="group_name" value="arm"/>
+<param name="open_gripper_service_name" value="/wam/open"/>
+<param name="close_gripper_service_name" value="/wam/close"/>
+<param name="gripper_status_service_name" value="/wam/is_grasping"/>
+<param name="movement_settle_time" value="0.100"/>
+<param name="default_dive_distance" value="0.200"/>
+</node>
+
+
+
+<!--  ********************************************************************
+  Optional: Second, more colorful rviz
+******************************************************************** -->
+<!-- Optional: launch a second, more colorful rviz. This one is configured to have the visualization_markers from the
+tf_to_collision_objects set up, so you can see the colors of the objects. -->
+<node name="rviz_display" pkg="rviz" type="rviz" respawn="false" args="-d $(find demo_wam_pnp)/config/rviz.rviz" output="screen" if="$(arg launch_secondary_rviz)"/>
+
+</launch>
+                                                                                                                               92,1          Bot

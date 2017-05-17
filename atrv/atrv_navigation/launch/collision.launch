@@ -1,0 +1,18 @@
+<!-- This is testing to tf_to_collision code that Steve wrote  -->
+<!-- Here we take the coordinates from the vicon and then see it as a transform  -->
+
+<launch>
+
+<!-- First, load object .yaml files to the parameter server -->
+  <rosparam command="load" param="tf_to_collision_objects/redbox" file="$(find atrv_navigation)/data/redblock_small.yaml" />
+  <rosparam command="load" param="tf_to_collision_objects/bluearch" file="$(find atrv_navigation)/data/bluearch.yaml" />
+
+  <!-- Now, launch the tf_to_collision_objects script -->
+    <node pkg="tf_to_collision_objects" type="tf_to_collision_objects.py" name="tf_to_collision_objects" output="screen"/>
+
+    <!-- All done! The objects will now be published as collision objects and visualization messages. -->
+    <!-- For this demonstration, we show rviz configured to display these. -->
+
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find atrv_navigation)/rviz/collision_example.rviz" /> -->
+
+  </launch>

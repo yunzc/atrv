@@ -14,8 +14,11 @@
 	<include file="$(find atrv_descriptions)/launch/description.launch" />
 	<include file="$(find atrv_control)/launch/control.launch" />
 	<!-- transform map to match atrv origin and then link baselink to atrv pose from vicon  -->
-	<node pkg="tf" type="static_transform_publisher" name="vicon_broadcaster" args="-2 2 0 0 0 0 1 /vicon_origin map 20" />
+	<node pkg="tf" type="static_transform_publisher" name="vicon_broadcaster" args="-2 2 -0.7 0 0 0 1 /vicon_origin map 20" />
 	<node pkg="tf" type="static_transform_publisher" name="atrv_broadcaster" args="0 0 0 0 0 0 1 vicon/ATRV_1/ATRV_1 base_link 20" />
+
+  <!-- Load collision objects for navigation purposes  -->
+  <include file="$(find atrv_navigation)/launch/collision.launch" />
 
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find atrv_navigation)/rviz/navigation.rviz" />
 
