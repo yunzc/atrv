@@ -1,0 +1,6 @@
+# Objects are published to the ROS parameter server under:
+# collision object file for the small redblock
+shape: 'box'
+geometry: [0.1, 0.1, 0.1] # width in each dimension, along X, Y, and Z respectively
+frame_id: 'vicon/redblock_small/redblock_small' # TF frame name
+color: [1, 0, 0] # RGB
