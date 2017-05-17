@@ -1,0 +1,6 @@
+# Collision object description file for the blue arch
+
+shape: 'mesh'
+mesh_file: 'package://atrv_navigation/data/meshes/arch.stl' # Location of mesh file
+frame_id: 'vicon/bluearch/bluearch'  #TF frame name
+color: [0, 0, 1] # RGB
